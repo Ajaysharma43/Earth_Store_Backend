@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const twillo = require("twilio");
+const jwt = require('jsonwebtoken')
 const Users = require('../Schemma/UserSchemmma')
 require("dotenv").config();
 
@@ -45,6 +46,26 @@ router.post('/SaveData' , async(req,res) => {
 })
 
 router.post('/Login' , async(req,res) => {
-    
+    const {_id,UserName , Password ,PhoneNumber} = req.body;
+    const user = await Users.findOne({_id : _id})
+    const payload = {_id  : user._id , Username : user.UserName , Password : user.Password , phoneNumber : user.Password}
+    const token  = jwt.sign(payload , process.env.JWT_SECRET_KEY , {expiresIn : 60})
+    res.json({user , token})
+})
+
+router.post('/VerifyUser' , async(req , res) => {
+  try
+  {
+    const {token} = req.body;
+    const verify = jwt.verify(token , process.env.JWT_SECRET_KEY)
+    if(!verify)
+    {
+      res.json({message : "token is not valid"})
+    }
+  }
+  catch(error)
+    {
+      console.error(error)
+    }
 })
 module.exports = router;
