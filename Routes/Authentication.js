@@ -53,7 +53,7 @@ router.post('/Login' , async(req,res) => {
     if(user)
     {
       const payload = { Username : user.UserName , Password : user.Password , phoneNumber : user.Password}
-    const token  = jwt.sign(payload , process.env.JWT_SECRET_KEY)
+    const token  = jwt.sign(payload , process.env.JWT_SECRET_KEY , {expiresIn:10})
     res.json({message : "Valid" , token})
     }
     else
@@ -83,5 +83,17 @@ router.post('/VerifyUser' , Authenticate ,  async(req , res) => {
     {
       console.error(error)
     }
+})
+
+router.post('/VerifyRoute' , Authenticate , async(req , res) => {
+  try 
+  {
+    res.json({ message: "valid", user: req.user });
+  }
+  catch(error)
+  {
+    console.log("the error is " + error);
+    
+  }
 })
 module.exports = router;

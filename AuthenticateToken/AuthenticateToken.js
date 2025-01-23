@@ -1,24 +1,27 @@
-const Jwt = require('jsonwebtoken')
+const Jwt = require('jsonwebtoken');
 
-const Authenticate = (req , res , next) => {
-    const token = req.headers.authorization.split(' ')[1]
+const Authenticate = (req, res, next) => {
+    const authHeader = req.headers.authorization;
 
-    if(!token)
-    {
-        return res.json({message : "Invalid"})
+    if (!authHeader) {
+        return res.status(401).json({ message: "Authorization header missing" });
     }
 
-    try{
-        const verify = Jwt.verify(token , process.env.JWT_SECRET_KEY)
+    const token = authHeader.split(' ')[1];
 
-        req.user = verify
+    if (!token) {
+        return res.status(401).json({ message: "Token missing" });
+    }
 
-        next();
+    try {
+        const verify = Jwt.verify(token, process.env.JWT_SECRET_KEY);
+        req.user = verify; 
+        res.json({message : "verifed"})
+        next(); 
+    } catch (error) {
+        console.error("JWT verification error:", error);
+        res.json({message : "expired"})
     }
-    catch(error)
-    {
-        console.log("the error is " + error); 
-    }
-}
+};
 
 module.exports = Authenticate;
