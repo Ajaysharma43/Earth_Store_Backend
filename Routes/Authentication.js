@@ -3,6 +3,7 @@ const router = express.Router();
 const twillo = require("twilio");
 const jwt = require('jsonwebtoken')
 const Users = require('../Schemma/UserSchemmma')
+const Authenticate = require('../AuthenticateToken/AuthenticateToken')
 require("dotenv").config();
 
 const app = express();
@@ -46,21 +47,36 @@ router.post('/SaveData' , async(req,res) => {
 })
 
 router.post('/Login' , async(req,res) => {
-    const {_id,UserName , Password ,PhoneNumber} = req.body;
-    const user = await Users.findOne({_id : _id})
-    const payload = {_id  : user._id , Username : user.UserName , Password : user.Password , phoneNumber : user.Password}
-    const token  = jwt.sign(payload , process.env.JWT_SECRET_KEY , {expiresIn : 60})
-    res.json({user , token})
+  try{ 
+    const {UserName , Password ,PhoneNumber} = req.body;
+    const user = await Users.findOne({PhoneNumber : PhoneNumber})
+    if(user)
+    {
+      const payload = { Username : user.UserName , Password : user.Password , phoneNumber : user.Password}
+    const token  = jwt.sign(payload , process.env.JWT_SECRET_KEY)
+    res.json({message : "Valid" , token})
+    }
+    else
+    {
+      res.json({message : "not a valid user"})
+    }
+    
+  }
+  catch(error)
+  {
+    console.error("The error Is " + error);
+    
+  }
 })
 
-router.post('/VerifyUser' , async(req , res) => {
+router.post('/VerifyUser' , Authenticate ,  async(req , res) => {
   try
   {
     const {token} = req.body;
     const verify = jwt.verify(token , process.env.JWT_SECRET_KEY)
-    if(!verify)
+    if(verify)
     {
-      res.json({message : "token is not valid"})
+      res.json({message : "token is valid" , verify , user : req.user})
     }
   }
   catch(error)
