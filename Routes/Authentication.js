@@ -53,7 +53,7 @@ router.post('/Login' , async(req,res) => {
     if(user)
     {
       const payload = { Username : user.UserName , Password : user.Password , phoneNumber : user.Password}
-    const token  = jwt.sign(payload , process.env.JWT_SECRET_KEY , {expiresIn:10})
+    const token  = jwt.sign(payload , process.env.JWT_SECRET_KEY)
     res.json({message : "Valid" , token})
     }
     else
