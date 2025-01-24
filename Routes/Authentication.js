@@ -39,7 +39,8 @@ router.post('/SaveData' , async(req,res) => {
     }
     else
     {
-        const set = {UserName : Data.Data.Username , Password : Data.Data.Password ,PhoneNumber: Data.Data.Phone}
+      const RefreshToken  = jwt.sign({},process.env.JWT_SECRET_KEY)
+        const set = {UserName : Data.Data.Username , Password : Data.Data.Password ,PhoneNumber: Data.Data.Phone , RefreshToken : RefreshToken}
         const dataset = new Users(set);
         const datasave = await dataset.save();
     }
@@ -49,12 +50,16 @@ router.post('/SaveData' , async(req,res) => {
 router.post('/Login' , async(req,res) => {
   try{ 
     const {UserName , Password ,PhoneNumber} = req.body;
+    console.log(UserName);
+    
     const user = await Users.findOne({PhoneNumber : PhoneNumber})
     if(user)
     {
-      const payload = { Username : user.UserName , Password : user.Password , phoneNumber : user.Password}
-    const token  = jwt.sign(payload , process.env.JWT_SECRET_KEY)
-    res.json({message : "Valid" , token})
+    const payload = { Username : user.UserName , Password : user.Password , phoneNumber : user.Password}
+    const accesstoken  = jwt.sign(payload , process.env.JWT_SECRET_KEY , {expiresIn : 10})
+    const refreshToken = user.RefreshToken;
+
+    res.json({message : "Valid" , token : accesstoken , refreshToken : refreshToken})
     }
     else
     {
@@ -93,7 +98,49 @@ router.post('/VerifyRoute' , Authenticate , async(req , res) => {
   catch(error)
   {
     console.log("the error is " + error);
-    
   }
 })
+
+
+router.post('/RefreshToken', (req, res) => {
+  try {
+    const { RefreshToken } = req.body;
+
+    if(RefreshToken)
+    {
+      jwt.verify(RefreshToken, process.env.JWT_SECRET_KEY, (err, decoded) => {
+        if (err) {
+          if (err.name === 'TokenExpiredError') {
+            console.log('Refresh token expired');
+            res.json({ message: 'expired'}); 
+          }
+  
+          console.log('Error verifying refresh token:', err);
+          res.status(401).json({ message: 'Invalid refresh token' });
+        }
+        console.log('Refresh token verified');
+          const AccessToken = jwt.sign({} , process.env.JWT_SECRET_KEY , {expiresIn : 10})
+          console.log("new token generated");
+          
+          res.json({ message: 'verified' , AccessToken : AccessToken }); 
+        
+      });
+    }
+    else
+    {
+      res.json({message :'NotExisted'})
+    }
+    
+  } catch (error) {
+    console.error('Error handling refresh token:', error);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+
+router.post('/GenerateRefreshToken' , async(req , res) => {
+  const Token = jwt.sign({} , process.env.JWT_SECRET_KEY , {expiresIn : 10})
+  res.json({Token})
+})
+
 module.exports = router;
