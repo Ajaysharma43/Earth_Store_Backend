@@ -126,7 +126,7 @@ router.post("/RefreshToken", (req, res) => {
 });
 
 router.post("/GenerateRefreshToken", async (req, res) => {
-  const Token = jwt.sign({}, process.env.JWT_SECRET_KEY, { expiresIn: 10 });
+  const Token = jwt.sign({}, process.env.JWT_SECRET_KEY, { expiresIn: '7d' });
   res.json({ Token });
 });
 
