@@ -40,8 +40,7 @@ router.post('/Review' , async(req,res) => {
         const Data = await data.findOne({_id : Reviews.id})
         const User = Data.Reviews.find((item) => item.Email === Reviews.Reviews.Email)
         if(User)
-        {
-            console.log("already Review");   
+        {   
             res.json({Message : "Already Reviwed"})
         }
         else
@@ -54,6 +53,17 @@ router.post('/Review' , async(req,res) => {
     }
     catch(error){
         console.error(error);
+    }
+})
+
+router.post('/DeleteReview' , async(req , res) => {
+    try
+    {
+
+    }
+    catch(error)
+    {
+        console.error("the error is " + error);
     }
 })
 

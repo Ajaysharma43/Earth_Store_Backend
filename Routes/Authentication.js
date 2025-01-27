@@ -52,7 +52,7 @@ router.post("/Login", async (req, res) => {
   try {
     const { UserName, Password, PhoneNumber } = req.body;
 
-    const user = await Users.findOne({ PhoneNumber: PhoneNumber });
+    const user = await Users.findOne({UserName : UserName , Password : Password ,  PhoneNumber: PhoneNumber });
     if (user) {
       const Username = Bycrypt.hash(user.UserName , 10)
       const Password = Bycrypt.hash(user.Password , 10)
@@ -115,7 +115,7 @@ router.post("/RefreshToken", (req, res) => {
         }
         console.log("Refresh token verified");
         const AccessToken = jwt.sign({}, process.env.JWT_SECRET_KEY, {
-          expiresIn: 10,
+          expiresIn: '2h',
         });
         console.log("new token generated");
 

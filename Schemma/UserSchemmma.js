@@ -1,8 +1,17 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 const UsersSchemma = new mongoose.Schema({
-    UserName : {type : String},
-    Password : {type : String},
-    PhoneNumber : {type : String}
-})
+  UserName: { type: String },
+  Password: { type: String },
+  PhoneNumber: { type: String },
+  LikedProducts: [
+    {
+      Name: { type: String },
+      Type: { type: String },
+      Price: { type: Number },
+      Image: { type: String },
+      Description: { type: String },
+    },
+  ],
+});
 
-module.exports = mongoose.model('table2' , UsersSchemma)
+module.exports = mongoose.model("table2", UsersSchemma);
