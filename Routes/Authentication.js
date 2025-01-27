@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const twillo = require("twilio");
 const jwt = require("jsonwebtoken");
+const Bycrypt = require('bcrypt')
 const Users = require("../Schemma/UserSchemmma");
 const Authenticate = require("../AuthenticateToken/AuthenticateToken");
 require("dotenv").config();
@@ -53,6 +54,8 @@ router.post("/Login", async (req, res) => {
 
     const user = await Users.findOne({ PhoneNumber: PhoneNumber });
     if (user) {
+      const Username = Bycrypt.hash(user.UserName , 10)
+      const Password = Bycrypt.hash(user.Password , 10)
       const accesstoken = jwt.sign({}, process.env.JWT_SECRET_KEY, {
         expiresIn: '2h',
       });
@@ -64,6 +67,8 @@ router.post("/Login", async (req, res) => {
         message: "Valid",
         token: accesstoken,
         refreshToken: refreshToken,
+        Username : UserName,
+        Password : Password
       });
     } else {
       res.json({ message: "not a valid user" });
