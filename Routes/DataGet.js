@@ -33,5 +33,10 @@ router.post('/RelatedProduct' , async (req,res)=>{
     res.json({result})
 })
 
+router.post('/Review' , async(req,res) => {
+    const {Reviews} = req.body;
+    console.log(Reviews)
+})
+
 
 module.exports = router;
