@@ -8,7 +8,7 @@ const ProductsSchemma = new mongoose.Schema({
     Description:{type:String},
     Reviews : [{
         UserName : {type : String},
-        email : {type : String},
+        Email : {type : String},
         Review : {type : String},
         Rating : {type : String}
     }]

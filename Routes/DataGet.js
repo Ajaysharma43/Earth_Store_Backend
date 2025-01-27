@@ -2,7 +2,8 @@ const express = require('express');
 const router = express.Router();
 const data = require('../Schemma/DataSchemma')
 const Authenticate = require('../AuthenticateToken/AuthenticateToken')
-const shuffle = require('../Functions/DataGetFunctions/Shuffle')
+const shuffle = require('../Functions/DataGetFunctions/Shuffle');
+const { Message } = require('twilio/lib/twiml/MessagingResponse');
 
 const app = express();
 
@@ -34,8 +35,26 @@ router.post('/RelatedProduct' , async (req,res)=>{
 })
 
 router.post('/Review' , async(req,res) => {
-    const {Reviews} = req.body;
-    console.log(Reviews)
+    try{
+        const {Reviews , id} = req.body;
+        const Data = await data.findOne({_id : Reviews.id})
+        const User = Data.Reviews.find((item) => item.Email === Reviews.Reviews.Email)
+        if(User)
+        {
+            console.log("already Review");   
+            res.json({Message : "Already Reviwed"})
+        }
+        else
+        {
+            Data.Reviews.push(Reviews.Reviews)
+            await Data.save()
+            console.log(Data);
+            res.json({Message : "Reviewd"})
+        }
+    }
+    catch(error){
+        console.error(error);
+    }
 })
 
 
