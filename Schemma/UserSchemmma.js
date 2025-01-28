@@ -3,7 +3,7 @@ const UsersSchemma = new mongoose.Schema({
   UserName: { type: String },
   Password: { type: String },
   PhoneNumber: { type: String },
-  LikedProducts: [
+  FavouriteProducts: [
     {
       Name: { type: String },
       Type: { type: String },
@@ -12,6 +12,13 @@ const UsersSchemma = new mongoose.Schema({
       Description: { type: String },
     },
   ],
+  UserReviews: [{
+    Userid : {type: String},
+      UserName: { type: String },
+      Email: { type: String },
+      Review: { type: String },
+      Rating: { type: String },
+  }]
 });
 
 module.exports = mongoose.model("table2", UsersSchemma);
