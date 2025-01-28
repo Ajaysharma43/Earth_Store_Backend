@@ -1,8 +1,13 @@
-const CryptoJS = require('crypto-js')
+const argon2 = require('argon2');
 
-function Decryption(Encrypted){
-    const Decrypted = CryptoJS.AES.decrypt(String(Encrypted), process.env.ENCRYPTION_DECRYPTION_KEY);    
-  return Decrypted.toString(CryptoJS.enc.Utf8)
+async function verifyPassword(storedHash, plainText) {
+  try {
+    const isValid = await argon2.verify(storedHash, plainText);
+    return isValid;  // Returns true if the password matches, false otherwise
+  } catch (error) {
+    console.error('Error during verification:', error);
+    throw new Error('Verification failed');
+  }
 }
 
-module.exports = Decryption
+module.exports = verifyPassword;

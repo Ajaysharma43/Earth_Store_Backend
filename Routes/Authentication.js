@@ -3,7 +3,7 @@ const router = express.Router();
 const twillo = require("twilio");
 const jwt = require("jsonwebtoken");
 const Bycrypt = require('bcrypt')
-const Cryptojs = require('crypto-js')
+const Encryption = require('../Functions/Encryption_Decryption/Encryption')
 const Users = require("../Schemma/UserSchemmma");
 const Authenticate = require("../AuthenticateToken/AuthenticateToken");
 require("dotenv").config();
@@ -53,11 +53,10 @@ router.post("/Login", async (req, res) => {
   try {
     const { UserName, Password, PhoneNumber } = req.body;
 
-    const user = await Users.findOne({UserName : UserName , Password : Password ,  PhoneNumber: PhoneNumber });
+    const user = await Users.findOne({ UserName: UserName, Password: Password, PhoneNumber: PhoneNumber });
     
     if (user) {
       const ID = user._id;
-      const EncryptedID = Cryptojs.AES.encrypt(String(ID), process.env.ENCRYPTION_DECRYPTION_KEY).toString();
       const accesstoken = jwt.sign({}, process.env.JWT_SECRET_KEY, {
         expiresIn: '2h',
       });
@@ -69,7 +68,7 @@ router.post("/Login", async (req, res) => {
         message: "Valid",
         AccessToken: accesstoken,
         refreshToken: refreshToken,
-        ID : EncryptedID
+        ID: ID // Store ID directly without encryption
       });
     } else {
       res.json({ message: "UnAuthorized" });
@@ -78,6 +77,7 @@ router.post("/Login", async (req, res) => {
     console.error("The error Is " + error);
   }
 });
+
 
 router.post("/VerifyUser", Authenticate, async (req, res) => {
   try {

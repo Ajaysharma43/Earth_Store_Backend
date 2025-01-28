@@ -41,7 +41,7 @@ router.post("/RelatedProduct", async (req, res) => {
 
 router.post("/Review", async (req, res) => {
   try {
-    const { Reviews} = req.body;
+    const { Reviews , id , Userid} = req.body;
 
     const Data = await data.findOne({ _id: Reviews.id });
     const User = Data.Reviews.find(
@@ -61,23 +61,28 @@ router.post("/Review", async (req, res) => {
 });
 
 
-router.get('/UserReview' , async(req , res) => {
+router.get('/UserReview', async (req, res) => {
     try {
-        const Encrypted = req.query.id
-        const productid = req.query.productid
-        const DecryptedID = Decryption(Encrypted)
-        const Product = await data.findOne({_id:productid})
-        const FindUserProducts = Product.Reviews.find((item) => Decryption(item.Userid) === DecryptedID)
-        console.log(FindUserProducts);
-        
-        res.json({message : FindUserProducts})
+      const { id, productid } = req.query;
+  
+      // Find the product by its ID
+      const product = await data.findOne({ _id: productid });
+  
+      if (!product) {
+        return res.status(404).json({ message: "Product not found" });
+      }
+  
+      // Filter reviews where the user ID matches the provided ID
+      const matchingReviews = product.Reviews.filter((review) => 
+        review.Userid == id);  // Directly compare the Userid with the provided ID
+  
+      res.json({ reviews: matchingReviews, userId: id });
+    } catch (error) {
+      console.error("Error fetching user reviews:", error);
+      res.status(500).json({ error: "Failed to process request." });
     }
-    catch(error)
-    {
-        console.log(error);
-        
-    }
-})
+  });
+  
 
 
 
