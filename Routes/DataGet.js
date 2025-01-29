@@ -5,8 +5,8 @@ const Users = require("../Schemma/UserSchemmma");
 const Authenticate = require("../AuthenticateToken/AuthenticateToken");
 const shuffle = require("../Functions/DataGetFunctions/Shuffle");
 const CryptoJS = require("crypto-js");
-const Encryption = require('../Functions/Encryption_Decryption/Encryption')
-const Decryption = require('../Functions/Encryption_Decryption/Decryption')
+const Encryption = require("../Functions/Encryption_Decryption/Encryption");
+const Decryption = require("../Functions/Encryption_Decryption/Decryption");
 const { Message } = require("twilio/lib/twiml/MessagingResponse");
 const { parse } = require("dotenv");
 
@@ -41,7 +41,7 @@ router.post("/RelatedProduct", async (req, res) => {
 
 router.post("/Review", async (req, res) => {
   try {
-    const { Reviews , id , Userid} = req.body;
+    const { Reviews, id, Userid } = req.body;
 
     const Data = await data.findOne({ _id: Reviews.id });
     const User = Data.Reviews.find(
@@ -60,31 +60,57 @@ router.post("/Review", async (req, res) => {
   }
 });
 
+router.get("/UserReview", async (req, res) => {
+  try {
+    const { id, productid } = req.query;
 
-router.get('/UserReview', async (req, res) => {
-    try {
-      const { id, productid } = req.query;
-  
-      // Find the product by its ID
-      const product = await data.findOne({ _id: productid });
-  
-      if (!product) {
-        return res.status(404).json({ message: "Product not found" });
-      }
-  
-      // Filter reviews where the user ID matches the provided ID
-      const matchingReviews = product.Reviews.filter((review) => 
-        review.Userid == id);  // Directly compare the Userid with the provided ID
-  
-      res.json({ reviews: matchingReviews, userId: id });
-    } catch (error) {
-      console.error("Error fetching user reviews:", error);
-      res.status(500).json({ error: "Failed to process request." });
+    // Find the product by its ID
+    const product = await data.findOne({ _id: productid });
+
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
     }
-  });
-  
 
+    // Filter reviews where the user ID matches the provided ID
+    const matchingReviews = product.Reviews.filter(
+      (review) => review.Userid == id
+    ); // Directly compare the Userid with the provided ID
 
+    res.json({ reviews: matchingReviews, userId: id });
+  } catch (error) {
+    console.error("Error fetching user reviews:", error);
+    res.status(500).json({ error: "Failed to process request." });
+  }
+});
+
+router.put("/UpdateReview", async (req, res) => {
+  try {
+    const { USERID, ID, Review, ProductID } = req.body;
+    console.log("executed");
+
+    const updatedProduct = await data.findOneAndUpdate(
+      { _id: ProductID, "Reviews.Userid": USERID }, // Find product with matching Review
+      {
+        $set: {
+          "Reviews.$.Review": Review.Review, // Update the review text
+          "Reviews.$.Rating": Review.Rating, // Update the rating
+        },
+      },
+      { new: true } // Return the updated document
+    );
+
+    console.log(updatedProduct);
+
+    if (!updatedProduct) {
+      return res.status(404).json({ message: "Product or Review not found" });
+    }
+
+    res.json({ message: "Review updated successfully", updatedProduct });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
 
 router.post("/DeleteReview", async (req, res) => {
   try {
