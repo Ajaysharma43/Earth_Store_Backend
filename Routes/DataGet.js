@@ -112,18 +112,34 @@ router.put("/UpdateReview", async (req, res) => {
   }
 });
 
-router.post("/DeleteReview", async (req, res) => {
+router.delete("/DeleteReview", async (req, res) => {
   try {
-    const { UserID, Reviews } = req.body;
-    const DecryptedID = CryptoJS.AES.decrypt(
-      UserID,
-      process.env.ENCRYPTION_DECRYPTION_KEY
-    ).toString(CryptoJS.enc.Utf8);
-    const FindUser = await Users.findOne({ _id: DecryptedID });
-    res.json({ FindUser, Reviews });
+    const { ReviewID, id, Userid } = req.query;
+
+    const product = await data.findOne({ _id: id });
+
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    const reviewIndex = product.Reviews.findIndex((item) => item.id === ReviewID);
+
+    if (reviewIndex === -1) {
+      return res.status(404).json({ message: "Review not found" });
+    }
+
+    product.Reviews.splice(reviewIndex, 1);
+
+    await product.save();
+
+    res.status(200).json({ message: "Review deleted successfully" });
+    
   } catch (error) {
-    console.error("the error is " + error);
+    console.error("Error deleting review:", error);
+    
+    res.status(500).json({ message: "Error deleting review" });
   }
 });
+
 
 module.exports = router;
