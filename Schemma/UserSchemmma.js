@@ -4,11 +4,13 @@ const UsersSchemma = new mongoose.Schema({
   Password: { type: String },
   PhoneNumber: { type: String },
   CartProducts: [{
+    ProductID: { type: String },
     Name: { type: String },
     Type: { type: String },
     Price: { type: Number },
     Image: { type: String },
     Description: { type: String },
+    Quantity: { type: Number }
   }]
 });
 
