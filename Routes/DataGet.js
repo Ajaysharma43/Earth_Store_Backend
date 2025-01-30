@@ -41,7 +41,7 @@ router.post("/RelatedProduct", async (req, res) => {
 
 router.post("/Review", async (req, res) => {
   try {
-    const { Reviews, id, Userid } = req.body;
+    const { Reviews, id, Userid  } = req.body;
 
     const Data = await data.findOne({ _id: Reviews.id });
     const User = Data.Reviews.find(
@@ -133,10 +133,10 @@ router.delete("/DeleteReview", async (req, res) => {
     await product.save();
 
     res.status(200).json({ message: "Review deleted successfully" });
-    
+
   } catch (error) {
     console.error("Error deleting review:", error);
-    
+
     res.status(500).json({ message: "Error deleting review" });
   }
 });
