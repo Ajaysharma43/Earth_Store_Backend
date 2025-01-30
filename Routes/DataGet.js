@@ -25,8 +25,11 @@ router.get("/data", async (req, res) => {
 
 router.post("/Product", async (req, res) => {
   const Id = req.body.id;
-  const Product = await data.findOne({ _id: Id.id });
-  res.json({ Product });
+  console.log(Id + " is the id");
+  
+  const Product = await data.findOne({ _id: Id });
+  
+  res.json({ Product:Product });
 });
 
 router.post("/RelatedProduct", async (req, res) => {
