@@ -19,18 +19,19 @@ router.get('/GetCart' , async(req , res) => {
 router.post('/AddCart' , async(req , res) => {
     try
     {
-        const {Userid , Products , ProductID} = req.body
+        const {Userid , CartData} = req.body
         const User = await Users.findOne({_id : Userid})
-        const FindCart = User.CartProducts.find((cart) => cart.ProductID === ProductID)
+        const FindCart = User.CartProducts.find((cart) => cart.ProductID === CartData.ProductID)
         if(FindCart)
         {
             res.json({Message : "Existed"})
         }
         else
         {
-            User.CartProducts.push(Products)
+            User.CartProducts.push(CartData)
             await User.save()
-            res.json({Message : "Saved to Cart"})
+
+            res.json({Message : "Saved to Cart" , Products : User.CartProducts})
         }
     }
     catch(error)
@@ -45,12 +46,12 @@ router.delete('/DeleteProduct' , async(req , res) => {
     {
         const {UserID , ProductID} = req.query;
         const User = await Users.findOne({_id : UserID})
-        const Product = User.CartProducts.find((item) => item.id === ProductID)
+        const Product = User.CartProducts.find((item) => item.ProductID === ProductID)
         if(Product)
         {
             Product.deleteOne();
             await User.save()
-            res.json({message : "Removed"})
+            res.json({message : "Removed" , Products : User.CartProducts})
         }
         else
         {
@@ -79,7 +80,21 @@ router.delete('/DeleteCart' , async(req , res) => {
     }
 })
 
-router.put('/UpdateQunatity' , async(req , res) => {
+router.put('/IncreaseQunatity' , async(req , res) => {
+    try
+    {
+        const {UserID  , ProductID , Qunatity} = req.body;
+        const User = await Users.findOne({_id : UserID});
+        const Findproduct = User.CartProducts.find((item) => item.ProductID === ProductID)
+        res.json({Message : Findproduct})
+    }
+    catch(error)
+    {
+        console.error(error);
+    }
+})
+
+router.put('/DecreaseQunatity' , async(req,res) => {
     try
     {
         const {UserID  , ProductID , Qunatity} = req.body;
