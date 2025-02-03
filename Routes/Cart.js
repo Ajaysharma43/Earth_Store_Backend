@@ -86,6 +86,9 @@ router.put('/IncreaseQunatity' , async(req , res) => {
         const {UserID  , ProductID , Qunatity} = req.body;
         const User = await Users.findOne({_id : UserID});
         const Findproduct = User.CartProducts.find((item) => item.ProductID === ProductID)
+        Findproduct.Quantity=Findproduct.Quantity+1
+        await User.save();
+
         res.json({Message : Findproduct})
     }
     catch(error)
@@ -100,6 +103,13 @@ router.put('/DecreaseQunatity' , async(req,res) => {
         const {UserID  , ProductID , Qunatity} = req.body;
         const User = await Users.findOne({_id : UserID});
         const Findproduct = User.CartProducts.find((item) => item.ProductID === ProductID)
+        Findproduct.Quantity = Findproduct.Quantity - 1;
+        if(Findproduct.Quantity == 0)
+        {
+            Findproduct.deleteOne();
+            await User.save()
+        }
+        await User.save()
         res.json({Message : Findproduct})
     }
     catch(error)
