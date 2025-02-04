@@ -57,10 +57,11 @@ router.post("/Login", async (req, res) => {
     
     if (user) {
       const ID = user._id;
-      const accesstoken = jwt.sign({}, process.env.JWT_SECRET_KEY, {
+      const Payload = {ID : ID}
+      const accesstoken = jwt.sign(Payload, process.env.JWT_SECRET_KEY, {
         expiresIn: '2h',
       });
-      const refreshToken = jwt.sign({}, process.env.JWT_SECRET_KEY, {
+      const refreshToken = jwt.sign(Payload ,  process.env.JWT_SECRET_KEY, {
         expiresIn: '7d',
       });
 
@@ -68,7 +69,6 @@ router.post("/Login", async (req, res) => {
         message: "Valid",
         AccessToken: accesstoken,
         refreshToken: refreshToken,
-        ID: ID // Store ID directly without encryption
       });
     } else {
       res.json({ message: "UnAuthorized" });
@@ -101,8 +101,8 @@ router.post("/VerifyRoute", Authenticate, async (req, res) => {
 
 router.post("/RefreshToken", (req, res) => {
   try {
-    const { RefreshToken } = req.body;
-
+    const { RefreshToken ,Userid } = req.body;
+    const Payload = {ID : Userid}
     if (RefreshToken) {
       jwt.verify(RefreshToken, process.env.JWT_SECRET_KEY, (err, decoded) => {
         if (err) {
@@ -115,7 +115,7 @@ router.post("/RefreshToken", (req, res) => {
           res.status(401).json({ message: "Invalid refresh token" });
         }
         console.log("Refresh token verified");
-        const AccessToken = jwt.sign({}, process.env.JWT_SECRET_KEY, {
+        const AccessToken = jwt.sign(Payload, process.env.JWT_SECRET_KEY, {
           expiresIn: '2h',
         });
         console.log("new token generated");
