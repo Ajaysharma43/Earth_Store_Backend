@@ -11,6 +11,16 @@ const UsersSchemma = new mongoose.Schema({
     Image: { type: String },
     Description: { type: String },
     Quantity: { type: Number }
+  }],
+  Chekout : [{
+    UUid : {type : String},
+    ProductID: { type: String },
+    Name: { type: String },
+    Type: { type: String },
+    Price: { type: Number },
+    Image: { type: String },
+    Description: { type: String },
+    Quantity: { type: Number }
   }]
 });
 
