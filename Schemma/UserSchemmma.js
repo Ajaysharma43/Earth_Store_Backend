@@ -13,7 +13,7 @@ const UsersSchemma = new mongoose.Schema({
     Quantity: { type: Number }
   }],
   Checkout : [{
-    UUid : {type : String},
+    InvoiceID : {type : String},
     ProductID: { type: String },
     Name: { type: String },
     Type: { type: String },

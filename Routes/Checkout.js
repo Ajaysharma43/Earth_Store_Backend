@@ -12,6 +12,11 @@ Router.post('/Buy', async (req, res) => {
         }
 
         const customer = await Stripe.customers.create({
+            address : {
+                city : token.card.address_city,
+                country : token.card.address_country,
+                postal_code : token.card.address_zip,
+            },
             email: token.email,
             name : token.card.name, 
             source: token.id,  
@@ -49,7 +54,7 @@ Router.post('/Buy', async (req, res) => {
 Router.post('/GetInvoice' , async(req,res) => {
     const {id} = req.body;
     const Invoice = await Stripe.invoices.retrieve(id);
-    res.json({Invoice : Invoice.status})
+    res.json({Invoice : Invoice})
 })
 
 module.exports = Router;
