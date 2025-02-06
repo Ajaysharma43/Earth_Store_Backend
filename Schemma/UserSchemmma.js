@@ -7,17 +7,17 @@ const UsersSchemma = new mongoose.Schema({
     ProductID: { type: String },
     Name: { type: String },
     Type: { type: String },
-    Price: { type: Number },
+    Price: { type: Number , set: (value) => parseFloat(value.toFixed(2)) },
     Image: { type: String },
     Description: { type: String },
     Quantity: { type: Number }
   }],
-  Chekout : [{
+  Checkout : [{
     UUid : {type : String},
     ProductID: { type: String },
     Name: { type: String },
     Type: { type: String },
-    Price: { type: Number },
+    Price: { type: Number},
     Image: { type: String },
     Description: { type: String },
     Quantity: { type: Number }
