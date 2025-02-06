@@ -22,6 +22,13 @@ Router.post('/Buy', async (req, res) => {
             source: token.id,  
         });
 
+        const Charges = await Stripe.charges.create({
+            amount : amount,
+            currency : 'usd',
+            customer : customer.id,
+            receipt_email : token.email
+        })
+
         const PaymentIntent = await Stripe.paymentIntents.create({
             amount : amount,
             currency : "usd",
@@ -55,6 +62,10 @@ Router.post('/GetInvoice' , async(req,res) => {
     const {id} = req.body;
     const Invoice = await Stripe.invoices.retrieve(id);
     res.json({Invoice : Invoice})
+})
+
+Router.post('/CheckoutProducts' , async(req,res) => {
+    
 })
 
 module.exports = Router;
