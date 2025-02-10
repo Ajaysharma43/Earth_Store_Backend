@@ -8,7 +8,8 @@ router.get('/GetCart' , async(req , res) => {
         const {UserID} = req.query;
         const User = await Users.findOne({_id : UserID})
         const CartProducts = User.CartProducts;
-        res.json({Message : CartProducts})
+        const CheckoutProducts = User.Checkout;
+        res.json({Message : CartProducts , CheckoutProducts : CheckoutProducts})
     }
     catch(error)
     {

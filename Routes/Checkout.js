@@ -123,15 +123,16 @@ Router.delete('/CheckoutCart', async (req, res) => {
         const user = await Users.findOne({ _id: UserID })
         const CartProducts = user.CartProducts
         user.Checkout.push(...user.CartProducts);
-        
+        user.OrderHistory.push(...user.CartProducts);
         user.CartProducts = [];
         await user.save()
         res.json({Message : user})
     }
     catch (error) {
         console.error("the error is  " + error);
-
     }
 })
+
+
 
 module.exports = Router;
