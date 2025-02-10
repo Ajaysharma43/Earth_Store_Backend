@@ -20,7 +20,8 @@ const UsersSchemma = new mongoose.Schema({
     Price: { type: Number , set: (value) => parseFloat(value.toFixed(2)) },
     Image: { type: String },
     Description: { type: String },
-    Quantity: { type: Number }
+    Quantity: { type: Number },
+    PlacedAt : {type : Date, default : Date.now()}
   }]
 });
 

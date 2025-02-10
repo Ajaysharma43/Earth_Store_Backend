@@ -122,12 +122,11 @@ Router.delete('/CheckoutCart', async (req, res) => {
 
         const user = await Users.findOne({ _id: UserID })
         const CartProducts = user.CartProducts
-        console.log(user);
-        CartProducts.forEach(
-            item => user.Checkout.push(item)
-        )
+        user.Checkout.push(...user.CartProducts);
+        
+        user.CartProducts = [];
         await user.save()
-        console.log(user);
+        res.json({Message : user})
     }
     catch (error) {
         console.error("the error is  " + error);
