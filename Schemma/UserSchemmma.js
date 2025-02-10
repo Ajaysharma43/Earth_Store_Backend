@@ -12,12 +12,12 @@ const UsersSchemma = new mongoose.Schema({
     Description: { type: String },
     Quantity: { type: Number }
   }],
+  StripeID : {type : String},
   Checkout : [{
-    InvoiceID : {type : String},
     ProductID: { type: String },
     Name: { type: String },
     Type: { type: String },
-    Price: { type: Number},
+    Price: { type: Number , set: (value) => parseFloat(value.toFixed(2)) },
     Image: { type: String },
     Description: { type: String },
     Quantity: { type: Number }
