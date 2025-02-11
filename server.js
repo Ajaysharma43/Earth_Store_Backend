@@ -13,10 +13,7 @@ const app = express();
 
 dbconnection();
 
-app.use(cors({
-    origin : 'http://localhost:5173',
-    credentials : true
-}));
+app.use(cors());
 
 
 app.use(express.json());
@@ -24,9 +21,9 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use('/Upload', Upload);
-app.use('/Data',GetData)
-app.use('/Autheorize' , Autherize)
-app.use('/Cart' , Cart)
-app.use('/Checkout' , Checkout)
+app.use('/Data', GetData)
+app.use('/Autheorize', Autherize)
+app.use('/Cart', Cart)
+app.use('/Checkout', Checkout)
 
 app.listen(3000);
