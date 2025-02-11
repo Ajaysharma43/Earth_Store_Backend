@@ -212,9 +212,18 @@ Router.post("/CheckoutCOD", async (req, res) => {
   });
 
   Router.get('/GetSingleProduct' , async(req,res) => {
-    const {UserID , ProductID } = req.query;
-    const user = await Users.findOne({_id : UserID})
-    const CheckoutProduct = user.Checkout.find((Product) => Product.id === ProductID)
-    res.json({CheckoutProduct : CheckoutProduct})
+    try
+    {
+        const {UserID , ProductID } = req.query;
+        const user = await Users.findOne({_id : UserID})
+        const CheckoutProduct = user.Checkout.find((Product) => Product.id === ProductID)
+        res.json({CheckoutProduct : CheckoutProduct})
+    }
+    catch(error)
+    {
+        console.error(error);
+        res.json(error)
+    }
+    
   })
 module.exports = Router;
