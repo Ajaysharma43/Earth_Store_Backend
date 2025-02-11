@@ -10,7 +10,12 @@ Router.post('/Buy', async (req, res) => {
 
         const User = await Users.findOne({ _id: UserID })
         if (User.StripeID) {
+            if (!token) {
+                return res.status(400).json({ error: 'Token or email missing' });
+            }
+
             const FindCustomer = await Stripe.customers.retrieve(User.StripeID)
+            
             if (FindCustomer) {
                 const Charges = await Stripe.charges.create({
                     amount: amount * 100,
@@ -116,47 +121,100 @@ Router.get('/Customers', async (req, res) => {
     res.json({ customer: Customers })
 })
 
-Router.delete('/CheckoutCart', async (req, res) => {
+Router.delete("/CheckoutCart", async (req, res) => {
     try {
-        const { Product, UserID } = req.query;
-        const user = await Users.findOne({ _id: UserID })
-        user.Checkout.push(...user.CartProducts);
-        user.OrderHistory.push(...user.CartProducts);
-        user.CartProducts = [];
-        await user.save()
-        res.json({ Message: user })
-    }
-    catch (error) {
-        console.error("the error is  " + error);
-    }
-})
-
-Router.post('/CheckoutCOD', async (req, res) => {
-    try {
-        const { Token, Total, UserID } = req.body;
-
-        // Find the user
-        const user = await Users.findOne({ _id: UserID });
-
-        if (!user) {
-            return res.status(404).json({ error: "User not found" });
-        }
-
-        user.Checkout.push(...user.CartProducts);
-        user.OrderHistory.push(...user.CartProducts);
-
-        user.CartProducts = [];
-
-        await user.save();
-
-        res.status(200).json({ message: "Checkout successful with COD", checkout: user.Checkout });
+      const { Product, UserID } = req.query;
+  
+      // Find the user
+      const user = await Users.findOne({ _id: UserID });
+  
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+  
+      if (user.CartProducts.length === 0) {
+        return res.status(400).json({ error: "Cart is empty" });
+      }
+  
+      // Create a new array with updated payment method and timestamp
+      const updatedProducts = user.CartProducts.map((item) => ({
+        ProductID: item.ProductID,
+        Name: item.Name,
+        Type: item.Type,
+        Price: item.Price,
+        Image: item.Image,
+        Description: item.Description,
+        Quantity: item.Quantity,
+        PaymentMethod: "Online Payment",
+        PlacedAt: new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }),
+      }));
+  
+      // Push updated products to Checkout and OrderHistory
+      user.Checkout.push(...updatedProducts);
+      user.OrderHistory.push(...updatedProducts);
+  
+      // Clear Cart after successful checkout
+      user.CartProducts = [];
+  
+      await user.save();
+  
+      res.status(200).json({
+        message: "Checkout successful with Online Payment",
+        checkout: user.Checkout,
+      });
     } catch (error) {
-        console.error("Checkout error:", error);
-        res.status(500).json({ error: "Internal server error" });
+      console.error("Checkout error:", error);
+      res.status(500).json({ error: "Internal server error" });
     }
-});
+  });
+  
 
+Router.post("/CheckoutCOD", async (req, res) => {
+    try {
+      const { Token, Total, UserID } = req.body;
+  
+      
+      const user = await Users.findOne({ _id: UserID });
+  
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+  
+      const updatedProducts = user.CartProducts.map((item) => ({
+        ProductID: item.ProductID,
+        Name: item.Name,
+        Type: item.Type,
+        Price: item.Price,
+        Image: item.Image,
+        Description: item.Description,
+        Quantity: item.Quantity,
+        PaymentMethod: "Cash on Delivery",
+        PlacedAt: new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }),
+      }));
+  
+      
+      user.Checkout.push(...updatedProducts);
+      user.OrderHistory.push(...updatedProducts);
+  
+      
+      user.CartProducts = [];
+  
+      await user.save();
+  
+      res.status(200).json({
+        message: "Checkout successful with COD",
+        checkout: user.Checkout,
+      });
+    } catch (error) {
+      console.error("Checkout error:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
 
-
-
+  Router.get('/GetSingleProduct' , async(req,res) => {
+    const {UserID , ProductID } = req.query;
+    const user = await Users.findOne({_id : UserID})
+    const CheckoutProduct = user.Checkout.find((Product) => Product.id === ProductID)
+    res.json({CheckoutProduct : CheckoutProduct})
+  })
 module.exports = Router;
