@@ -5,7 +5,7 @@ const Stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 Router.post('/Buy', async (req, res) => {
     try {
-        const { token, amount, UserID } = req.body;
+        const { token, amount, UserID, Details } = req.body;
         console.log("the ammount is " + amount);
 
         const User = await Users.findOne({ _id: UserID })
@@ -13,21 +13,21 @@ Router.post('/Buy', async (req, res) => {
             const FindCustomer = await Stripe.customers.retrieve(User.StripeID)
             if (FindCustomer) {
                 const Charges = await Stripe.charges.create({
-                    amount: amount,
+                    amount: amount * 100,
                     currency: 'usd',
                     customer: FindCustomer.id,
-                    receipt_email: token.email
+                    receipt_email: Details.Email
                 })
 
                 const PaymentIntent = await Stripe.paymentIntents.create({
-                    amount: amount,
+                    amount: amount * 100,
                     currency: "usd",
                     payment_method_types: ['card']
                 })
 
                 const invoiceItem = await Stripe.invoiceItems.create({
                     customer: FindCustomer.id,
-                    amount: amount,
+                    amount: amount * 100,
                     currency: 'usd',
                     description: 'One time setup fee',
                 });
@@ -52,32 +52,32 @@ Router.post('/Buy', async (req, res) => {
             }
             const customer = await Stripe.customers.create({
                 address: {
-                    city: token.card.address_city,
-                    country: token.card.address_country,
-                    postal_code: token.card.address_zip,
+                    city: Details.Street,
+                    country: Details.Country,
+                    postal_code: Details.Pincode,
                 },
-                email: token.email,
-                name: token.card.name,
+                email: Details.Email,
+                name: Details.FullName,
                 source: token.id,
-                phone: User.PhoneNumber
+                phone: Details.PhoneNumber
             });
 
             const Charges = await Stripe.charges.create({
-                amount: amount,
+                amount: amount * 100,
                 currency: 'usd',
                 customer: customer.id,
-                receipt_email: token.email
+                receipt_email: Details.Email
             })
 
             const PaymentIntent = await Stripe.paymentIntents.create({
-                amount: amount,
+                amount: amount * 100,
                 currency: "usd",
                 payment_method_types: ['card']
             })
 
             const invoiceItem = await Stripe.invoiceItems.create({
                 customer: customer.id,
-                amount: amount,
+                amount: amount * 100,
                 currency: 'usd',
                 description: 'One time setup fee',
             });
@@ -119,19 +119,43 @@ Router.get('/Customers', async (req, res) => {
 Router.delete('/CheckoutCart', async (req, res) => {
     try {
         const { Product, UserID } = req.query;
-
         const user = await Users.findOne({ _id: UserID })
-        const CartProducts = user.CartProducts
         user.Checkout.push(...user.CartProducts);
         user.OrderHistory.push(...user.CartProducts);
         user.CartProducts = [];
         await user.save()
-        res.json({Message : user})
+        res.json({ Message: user })
     }
     catch (error) {
         console.error("the error is  " + error);
     }
 })
+
+Router.post('/CheckoutCOD', async (req, res) => {
+    try {
+        const { Token, Total, UserID } = req.body;
+
+        // Find the user
+        const user = await Users.findOne({ _id: UserID });
+
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        user.Checkout.push(...user.CartProducts);
+        user.OrderHistory.push(...user.CartProducts);
+
+        user.CartProducts = [];
+
+        await user.save();
+
+        res.status(200).json({ message: "Checkout successful with COD", checkout: user.Checkout });
+    } catch (error) {
+        console.error("Checkout error:", error);
+        res.status(500).json({ error: "Internal server error" });
+    }
+});
+
 
 
 

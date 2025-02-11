@@ -21,7 +21,8 @@ const UsersSchemma = new mongoose.Schema({
     Image: { type: String },
     Description: { type: String },
     Quantity: { type: Number },
-    PlacedAt : {type : Date, default : Date.now()}
+    PlacedAt : {type : Date, default : Date.now()},
+    PaymentMethod : {type : String}
   }],
   OrderHistory : [{
     ProductID: { type: String },
@@ -31,7 +32,8 @@ const UsersSchemma = new mongoose.Schema({
     Image: { type: String },
     Description: { type: String },
     Quantity: { type: Number },
-    PlacedAt : {type : Date, default : Date.now()}
+    PlacedAt : {type : Date, default : Date.now()},
+    PaymentMethod : {type : String}
   }]
 });
 
