@@ -1,6 +1,5 @@
 const mongoose = require("mongoose");
 
-// Function to get current date in Indian Standard Time (IST)
 const getISTDate = () => {
   return new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" });
 };
@@ -47,15 +46,26 @@ const UsersSchemma = new mongoose.Schema({
   ],
   OrderHistory: [
     {
-      ProductID: { type: String },
-      Name: { type: String },
-      Type: { type: String },
-      Price: { type: Number, set: (value) => parseFloat(value.toFixed(2)) },
-      Image: { type: String },
-      Description: { type: String },
-      Quantity: { type: Number },
-      PlacedAt: { type: String, default: getISTDate }, // Store in IST format
-      PaymentMethod: { type: String },
+      Product : [{
+        ProductID: { type: String },
+        Name: { type: String },
+        Type: { type: String },
+        Price: { type: Number, set: (value) => parseFloat(value.toFixed(2)) },
+        Image: { type: String },
+        Description: { type: String },
+        Quantity: { type: Number },
+        PlacedAt: { type: String, default: getISTDate }, 
+        PaymentMethod: { type: String },
+        ChargeID : {type : String},
+      }],
+      Address : {
+        Pincode : {type : String},
+        Street : {type : String},
+        Area : {type : String},
+        City : {type : String},
+        State : {type : String},
+        Country : {type : String}
+      },
     },
   ],
 });
