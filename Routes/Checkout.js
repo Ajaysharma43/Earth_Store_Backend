@@ -3,6 +3,25 @@ const Users = require('../Schemma/UserSchemmma');
 const Router = express.Router();
 const Stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
+Router.post('/CreateCustomerSessioins' , async(req , res) => {
+  try
+  {
+    const {UserID , amount} = req.body;
+    const User = await Users.findOne({_id : UserID})
+    const Createsession  = await Stripe.paymentIntents.create({
+      amount : amount,
+      currency : 'usd',
+      customer : User.StripeID,
+    })
+    res.json({client_secret : Createsession.client_secret})
+  }
+  catch(error)
+  {
+    res.json({error : error})
+  }
+  
+})
+
 Router.post('/Buy', async (req, res) => {
     try {
         const { token, amount, UserID, Details } = req.body;
@@ -169,17 +188,18 @@ Router.delete("/CheckoutCart", async (req, res) => {
   });
   
 
-Router.post("/CheckoutCOD", async (req, res) => {
+  Router.post("/CheckoutCOD", async (req, res) => {
     try {
       const { Token, Total, UserID } = req.body;
   
-      
+      // Fetch the user by their ID
       const user = await Users.findOne({ _id: UserID });
   
       if (!user) {
         return res.status(404).json({ error: "User not found" });
       }
   
+      // Prepare the products data for the Checkout and OrderHistory arrays
       const updatedProducts = user.CartProducts.map((item) => ({
         ProductID: item.ProductID,
         Name: item.Name,
@@ -192,13 +212,26 @@ Router.post("/CheckoutCOD", async (req, res) => {
         PlacedAt: new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }),
       }));
   
-      
-      user.Checkout.push(...updatedProducts);
+      // Push to Checkout with Address and Product details
+      user.Checkout.push({
+        Product: updatedProducts,
+        Address: {
+          Pincode: Token.Pincode || "",
+          Street: Token.Street || "",
+          Area: Token.Area || "",
+          City: Token.City || "",
+          State: Token.State || "",
+          Country: Token.Country || "",
+        },
+      });
+  
+      // Append to OrderHistory
       user.OrderHistory.push(...updatedProducts);
   
-      
+      // Clear the CartProducts array
       user.CartProducts = [];
   
+      // Save the updated user document
       await user.save();
   
       res.status(200).json({
@@ -210,6 +243,7 @@ Router.post("/CheckoutCOD", async (req, res) => {
       res.status(500).json({ error: "Internal server error" });
     }
   });
+  
 
   Router.get('/GetSingleProduct' , async(req,res) => {
     try
