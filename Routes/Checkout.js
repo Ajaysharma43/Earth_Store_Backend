@@ -3,22 +3,7 @@ const Users = require('../Schemma/UserSchemmma');
 const Router = express.Router();
 const Stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
-Router.post('/CreateCustomerSessioins', async (req, res) => {
-  try {
-    const { UserID, amount } = req.body;
-    const User = await Users.findOne({ _id: UserID })
-    const Createsession = await Stripe.paymentIntents.create({
-      amount: amount,
-      currency: 'usd',
-      customer: User.StripeID,
-    })
-    res.json({ client_secret: Createsession.client_secret })
-  }
-  catch (error) {
-    res.json({ error: error })
-  }
 
-})
 
 Router.post('/Buy', async (req, res) => {
   try {
@@ -61,8 +46,8 @@ Router.post('/Buy', async (req, res) => {
         });
 
         await Stripe.invoices.finalizeInvoice(invoice.id);
-
-        return res.status(200).json({ success: true, invoice });
+        console.log("the charges are " , Charges.id);
+        return res.status(200).json({ success: true, invoice  , Charges: Charges.id});
       }
       else {
         console.log("customer not existed");
@@ -115,8 +100,9 @@ Router.post('/Buy', async (req, res) => {
       const UpDateUser = await Users.findOne({ _id: UserID })
       UpDateUser.StripeID = invoice.customer
       await UpDateUser.save();
+console.log("the charges are " , Charges.id);
 
-      return res.status(200).json({ success: true, invoice });
+      return res.status(200).json({ success: true, invoice, Charges: Charges.id });
     }
 
   } catch (error) {
@@ -140,10 +126,11 @@ Router.get('/Customers', async (req, res) => {
 
 Router.delete("/CheckoutCart", async (req, res) => {
   try {
-    const { Product, UserID } = req.query;
-
+    const { Product, UserID, Charges, Token } = req.query;
+    const TokenData = JSON.parse(Token)
     // Find the user
     const user = await Users.findOne({ _id: UserID });
+
 
     if (!user) {
       return res.status(404).json({ error: "User not found" });
@@ -162,13 +149,36 @@ Router.delete("/CheckoutCart", async (req, res) => {
       Image: item.Image,
       Description: item.Description,
       Quantity: item.Quantity,
-      PaymentMethod: "Online Payment",
       PlacedAt: new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }),
     }));
 
     // Push updated products to Checkout and OrderHistory
-    user.Checkout.push(...updatedProducts);
-    user.OrderHistory.push(...updatedProducts);
+    user.Checkout.push({
+      Product: updatedProducts,
+      Address: {
+        Pincode: TokenData.Pincode || "",
+        Street: TokenData.Street || "",
+        Area: TokenData.Area || "",
+        City: TokenData.City || "",
+        State: TokenData.State || "",
+        PaymentMethod: "Online Payment",
+        Country: TokenData.Country || "",
+      },
+      ChargeID: Charges,
+    });
+    user.OrderHistory.push({
+      Product: updatedProducts,
+      Address: {
+        Pincode: TokenData.Pincode || "",
+        Street: TokenData.Street || "",
+        Area: TokenData.Area || "",
+        City: TokenData.City || "",
+        State: TokenData.State || "",
+        PaymentMethod: "Online Payment",
+        Country: TokenData.Country || "",
+      },
+      ChargeID: Charges,
+    });
 
     // Clear Cart after successful checkout
     user.CartProducts = [];
@@ -205,7 +215,6 @@ Router.post("/CheckoutCOD", async (req, res) => {
       Image: item.Image,
       Description: item.Description,
       Quantity: item.Quantity,
-      PaymentMethod: "Cash on Delivery",
       PlacedAt: new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }),
     }));
 
@@ -218,6 +227,7 @@ Router.post("/CheckoutCOD", async (req, res) => {
         Area: Token.Area || "",
         City: Token.City || "",
         State: Token.State || "",
+        PaymentMethod: "Cash on Delivery",
         Country: Token.Country || "",
       },
     });
@@ -231,6 +241,7 @@ Router.post("/CheckoutCOD", async (req, res) => {
         Area: Token.Area || "",
         City: Token.City || "",
         State: Token.State || "",
+        PaymentMethod: "Cash on Delivery",
         Country: Token.Country || "",
       }
     });
@@ -252,7 +263,7 @@ Router.post("/CheckoutCOD", async (req, res) => {
 
 Router.get('/GetSingleProduct', async (req, res) => {
   try {
-    const { UserID,ObjectID } = req.query;
+    const { UserID, ObjectID } = req.query;
     const user = await Users.findOne({ _id: UserID })
 
     const CheckoutProduct = user.Checkout.find((Product) => Product.id === ObjectID)

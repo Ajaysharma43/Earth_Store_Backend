@@ -31,8 +31,6 @@ const UsersSchemma = new mongoose.Schema({
         Description: { type: String },
         Quantity: { type: Number },
         PlacedAt: { type: String, default: getISTDate }, 
-        PaymentMethod: { type: String },
-        ChargeID : {type : String},
       }],
       Address : {
         Pincode : {type : String},
@@ -40,8 +38,10 @@ const UsersSchemma = new mongoose.Schema({
         Area : {type : String},
         City : {type : String},
         State : {type : String},
-        Country : {type : String}
+        Country : {type : String},
+        PaymentMethod: { type: String },
       },
+      ChargeID : {type : String},
     },
   ],
   OrderHistory: [
@@ -55,8 +55,6 @@ const UsersSchemma = new mongoose.Schema({
         Description: { type: String },
         Quantity: { type: Number },
         PlacedAt: { type: String, default: getISTDate }, 
-        PaymentMethod: { type: String },
-        ChargeID : {type : String},
       }],
       Address : {
         Pincode : {type : String},
@@ -64,8 +62,10 @@ const UsersSchemma = new mongoose.Schema({
         Area : {type : String},
         City : {type : String},
         State : {type : String},
-        Country : {type : String}
+        Country : {type : String},
+        PaymentMethod: { type: String },
       },
+      ChargeID : {type : String},
     },
   ],
 });
