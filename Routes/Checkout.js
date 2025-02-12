@@ -280,9 +280,7 @@ Router.get('/CheckPaymentStatus' , async(req , res) => {
   try
   {
     const {Userid , ObjectID} = req.query
-    const User  = await Users.findOne({_id : Userid});
-    const Charges = User.Checkout.find((item) => item.id === ObjectID)
-    const Charge = await Stripe.charges.retrieve(Charges.ChargeID)
+    const Charge = await Stripe.charges.retrieve(ObjectID)
     res.json({Charge : Charge})
   }
   catch(error)
