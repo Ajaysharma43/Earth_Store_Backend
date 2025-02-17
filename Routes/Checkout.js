@@ -362,4 +362,26 @@ Router.delete('/Cancel_COD_Order', async (req, res) => {
   }
 });
 
+Router.get('/GetOrderHistory' , async(req ,res) => {
+  try{
+    const {UserID} = req.query;
+    if(UserID)
+    {
+      const user = await Users.findOne({_id : UserID});
+      const Orderhistory  = user.OrderHistory;
+      res.json({Orderhistory : Orderhistory})
+    }
+    else
+    {
+      res.json({message : "userid not found"})
+    }
+    
+  }
+  catch(error)
+  {
+    console.error(error);
+    res.json({error : error})
+  }
+})
+
 module.exports = Router;
