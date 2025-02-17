@@ -66,6 +66,9 @@ const UsersSchemma = new mongoose.Schema({
         PaymentMethod: { type: String },
       },
       ChargeID : {type : String},
+      OrderID : {type : String},
+      Canceled : {type : Boolean , default : false},
+      Reason : {type  : String},
     },
   ],
 });

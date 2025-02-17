@@ -46,8 +46,8 @@ Router.post('/Buy', async (req, res) => {
         });
 
         await Stripe.invoices.finalizeInvoice(invoice.id);
-        console.log("the charges are " , Charges.id);
-        return res.status(200).json({ success: true, invoice  , Charges: Charges.id});
+        console.log("the charges are ", Charges.id);
+        return res.status(200).json({ success: true, invoice, Charges: Charges.id });
       }
       else {
         console.log("customer not existed");
@@ -100,7 +100,7 @@ Router.post('/Buy', async (req, res) => {
       const UpDateUser = await Users.findOne({ _id: UserID })
       UpDateUser.StripeID = invoice.customer
       await UpDateUser.save();
-console.log("the charges are " , Charges.id);
+      console.log("the charges are ", Charges.id);
 
       return res.status(200).json({ success: true, invoice, Charges: Charges.id });
     }
@@ -166,19 +166,6 @@ Router.delete("/CheckoutCart", async (req, res) => {
       },
       ChargeID: Charges,
     });
-    user.OrderHistory.push({
-      Product: updatedProducts,
-      Address: {
-        Pincode: TokenData.Pincode || "",
-        Street: TokenData.Street || "",
-        Area: TokenData.Area || "",
-        City: TokenData.City || "",
-        State: TokenData.State || "",
-        PaymentMethod: "Online Payment",
-        Country: TokenData.Country || "",
-      },
-      ChargeID: Charges,
-    });
 
     // Clear Cart after successful checkout
     user.CartProducts = [];
@@ -200,7 +187,6 @@ Router.post("/CheckoutCOD", async (req, res) => {
   try {
     const { Token, Total, UserID } = req.body;
 
-
     const user = await Users.findOne({ _id: UserID });
 
     if (!user) {
@@ -218,7 +204,7 @@ Router.post("/CheckoutCOD", async (req, res) => {
       PlacedAt: new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }),
     }));
 
-
+    // Add products to Checkout only
     user.Checkout.push({
       Product: updatedProducts,
       Address: {
@@ -232,20 +218,7 @@ Router.post("/CheckoutCOD", async (req, res) => {
       },
     });
 
-
-    user.OrderHistory.push({
-      Product: updatedProducts,
-      Address: {
-        Pincode: Token.Pincode || "",
-        Street: Token.Street || "",
-        Area: Token.Area || "",
-        City: Token.City || "",
-        State: Token.State || "",
-        PaymentMethod: "Cash on Delivery",
-        Country: Token.Country || "",
-      }
-    });
-
+    // Clear CartProducts after checkout
     user.CartProducts = [];
 
     await user.save();
@@ -276,17 +249,117 @@ Router.get('/GetSingleProduct', async (req, res) => {
 
 })
 
-Router.get('/CheckPaymentStatus' , async(req , res) => {
-  try
-  {
-    const {Userid , ObjectID} = req.query
+Router.get('/CheckPaymentStatus', async (req, res) => {
+  try {
+    const { Userid, ObjectID } = req.query
     const Charge = await Stripe.charges.retrieve(ObjectID)
-    res.json({Charge : Charge})
+    res.json({ Charge: Charge })
   }
-  catch(error)
-  {
-    res.json({error : error})
+  catch (error) {
+    res.json({ error: error })
   }
-  
+
 })
+
+Router.delete('/CancelOrder', async (req, res) => {
+  try {
+    const { Order, Charges, Reason, UserID } = req.query;
+
+    const OrderCharge = await Stripe.charges.retrieve(Charges);
+
+    if (OrderCharge.refunded === true) {
+      const user = await Users.findOne({ _id: UserID });
+      const FindOrder = user.Checkout.find((item) => item.id === Order);
+
+      if (FindOrder) {
+        // Add the order to OrderHistory on cancellation
+        user.OrderHistory.push({
+          Product: FindOrder.Product,
+          Address: FindOrder.Address,
+          ChargeID: Charges,
+          Canceled: true,
+          Reason: Reason,
+        });
+
+        // Remove the order from Checkout
+        user.Checkout = user.Checkout.filter((item) => item.id !== Order);
+
+        await user.save();
+        res.json({ user: user });
+      } else {
+        res.json({ Message: "Product does not exist in Checkout" });
+      }
+    } else {
+      const CancelOrder = await Stripe.refunds.create({
+        charge: Charges,
+      });
+
+      const UpdatedCharge = await Stripe.charges.retrieve(Charges);
+      if (UpdatedCharge.refunded === true) {
+        const user = await Users.findOne({ _id: UserID });
+        const FindOrder = user.Checkout.find((item) => item.id === Order);
+
+        if (FindOrder) {
+          // Add the order to OrderHistory on cancellation
+          user.OrderHistory.push({
+            Product: FindOrder.Product,
+            Address: FindOrder.Address,
+            ChargeID: Charges,
+            Canceled: true,
+            Reason: Reason,
+          });
+
+          // Remove the order from Checkout
+          user.Checkout = user.Checkout.filter((item) => item.id !== Order);
+
+          await user.save();
+          res.json({ user: user });
+        } else {
+          res.json({ Message: "Product does not exist in Checkout" });
+        }
+      }
+
+      res.json({ Charges: UpdatedCharge });
+    }
+  } catch (error) {
+    console.error(error);
+    
+    res.json({ error: error });
+  }
+});
+
+
+Router.delete('/Cancel_COD_Order', async (req, res) => {
+  try {
+    const { Order, Reason, UserID } = req.query;
+
+    if (Order && Reason && UserID) {
+      const user = await Users.findOne({ _id: UserID });
+      const FindOrder = user.Checkout.find((item) => item.id === Order);
+
+      if (FindOrder) {
+        // Add the order to OrderHistory on cancellation
+        user.OrderHistory.push({
+          Product: FindOrder.Product,
+          Address: FindOrder.Address,
+          Canceled: true,
+          Reason: Reason,
+        });
+
+        // Remove the order from Checkout
+        user.Checkout = user.Checkout.filter((item) => item.id !== Order);
+
+        await user.save();
+        res.json({ user: user });
+      } else {
+        res.json({ message: "Order not found in Checkout" });
+      }
+    } else {
+      res.json({ message: "Incomplete details provided" });
+    }
+  } catch (error) {
+    res.json({ error: error });
+  }
+});
+
 module.exports = Router;
