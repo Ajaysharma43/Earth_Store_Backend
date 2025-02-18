@@ -8,6 +8,7 @@ const UsersSchemma = new mongoose.Schema({
   UserName: { type: String },
   Password: { type: String },
   PhoneNumber: { type: String },
+  Role : {type : String , enum : ["Admin" , "User"] , default : "User"},
   CartProducts: [
     {
       ProductID: { type: String },

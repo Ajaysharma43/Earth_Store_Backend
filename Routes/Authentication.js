@@ -57,7 +57,7 @@ router.post("/Login", async (req, res) => {
     
     if (user) {
       const ID = user._id;
-      const Payload = {ID : ID}
+      const Payload = {ID : ID , Role : user.Role}
       const accesstoken = jwt.sign(Payload, process.env.JWT_SECRET_KEY, {
         expiresIn: '2h',
       });
@@ -101,8 +101,8 @@ router.post("/VerifyRoute", Authenticate, async (req, res) => {
 
 router.post("/RefreshToken", (req, res) => {
   try {
-    const { RefreshToken ,Userid } = req.body;
-    const Payload = {ID : Userid}
+    const { RefreshToken ,Userid  , Role} = req.body;
+    const Payload = {ID : Userid , Role : Role }
     if (RefreshToken) {
       jwt.verify(RefreshToken, process.env.JWT_SECRET_KEY, (err, decoded) => {
         if (err) {
