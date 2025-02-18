@@ -23,6 +23,11 @@ router.get("/data", async (req, res) => {
   res.json({ Data, currentPage, totalpages });
 });
 
+router.get('/AllData' , async(req , res) => {
+  const Data = await data.find()
+  res.json({ Data : Data })
+})
+
 router.post("/Product", async (req, res) => {
   const Id = req.body.id;
   console.log(Id + " is the id");
