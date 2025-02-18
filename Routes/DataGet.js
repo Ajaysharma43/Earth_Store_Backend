@@ -2,12 +2,7 @@ const express = require("express");
 const router = express.Router();
 const data = require("../Schemma/DataSchemma");
 const Users = require("../Schemma/UserSchemmma");
-const Authenticate = require("../AuthenticateToken/AuthenticateToken");
 const shuffle = require("../Functions/DataGetFunctions/Shuffle");
-const CryptoJS = require("crypto-js");
-const Encryption = require("../Functions/Encryption_Decryption/Encryption");
-const Decryption = require("../Functions/Encryption_Decryption/Decryption");
-const { Message } = require("twilio/lib/twiml/MessagingResponse");
 const { parse } = require("dotenv");
 
 const app = express();
@@ -26,6 +21,11 @@ router.get("/data", async (req, res) => {
 router.get('/AllData' , async(req , res) => {
   const Data = await data.find()
   res.json({ Data : Data })
+})
+
+router.get('/AllUsers' , async(req , res) => {
+  const UsersData = await Users.find();
+  res.json({Users : UsersData})
 })
 
 router.post("/Product", async (req, res) => {
