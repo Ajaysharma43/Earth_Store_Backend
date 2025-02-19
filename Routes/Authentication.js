@@ -101,8 +101,8 @@ router.post("/VerifyRoute", Authenticate, async (req, res) => {
 
 router.post("/RefreshToken", (req, res) => {
   try {
-    const { RefreshToken ,Userid  , Role} = req.body;
-    const Payload = {ID : Userid , Role : Role }
+    const { RefreshToken ,Userid  , Role , Block} = req.body;
+    const Payload = {ID : Userid , Role : Role  , Block : Block}
     if (RefreshToken) {
       jwt.verify(RefreshToken, process.env.JWT_SECRET_KEY, (err, decoded) => {
         if (err) {
