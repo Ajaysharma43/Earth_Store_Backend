@@ -9,6 +9,7 @@ const UsersSchemma = new mongoose.Schema({
   Password: { type: String },
   PhoneNumber: { type: String },
   Role : {type : String , enum : ["Admin" , "User"] , default : "User"},
+  Block : {type : Boolean , default : false},
   CartProducts: [
     {
       ProductID: { type: String },

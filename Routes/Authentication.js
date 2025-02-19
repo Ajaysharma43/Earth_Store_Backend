@@ -57,7 +57,7 @@ router.post("/Login", async (req, res) => {
     
     if (user) {
       const ID = user._id;
-      const Payload = {ID : ID , Role : user.Role}
+      const Payload = {ID : ID , Role : user.Role , Block : user.Block}
       const accesstoken = jwt.sign(Payload, process.env.JWT_SECRET_KEY, {
         expiresIn: '2h',
       });

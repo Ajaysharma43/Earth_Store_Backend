@@ -6,6 +6,7 @@ const Autherize = require('./Routes/Authentication')
 const Cart = require('./Routes/Cart')
 const Checkout = require('./Routes/Checkout')
 const VerifyRole = require('./Routes/VerifyRole')
+const UsersOperations = require('./Routes/UserOperations')
 const bodyParser = require("body-parser");
 const cors = require('cors');
 const firebae = require('firebase-admin')
@@ -27,5 +28,6 @@ app.use('/Autheorize', Autherize)
 app.use('/Cart', Cart)
 app.use('/Checkout', Checkout)
 app.use('/VerifyRole' , VerifyRole)
+app.use('/UsersOperations'  , UsersOperations)
 
 app.listen(3000);
