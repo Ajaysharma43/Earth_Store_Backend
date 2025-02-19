@@ -28,6 +28,13 @@ router.get('/AllUsers' , async(req , res) => {
   res.json({Users : UsersData})
 })
 
+router.get('/User' , async(req , res) => {
+  const {UserID}  = req.query;
+  const FindUser = await Users.findOne({_id : UserID})
+  res.json({User : FindUser})
+  
+})
+
 router.post("/Product", async (req, res) => {
   const Id = req.body.id;
   console.log(Id + " is the id");
