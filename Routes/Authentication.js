@@ -37,12 +37,10 @@ router.post("/SaveData", async (req, res) => {
   if (existed) {
     res.send("existed");
   } else {
-    const RefreshToken = jwt.sign({}, process.env.JWT_SECRET_KEY);
     const set = {
       UserName: Data.Data.Username,
       Password: Data.Data.Password,
       PhoneNumber: Data.Data.Phone,
-      RefreshToken: RefreshToken,
     };
     const dataset = new Users(set);
     const datasave = await dataset.save();
