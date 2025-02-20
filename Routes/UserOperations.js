@@ -33,5 +33,41 @@ Router.put('/UpdateUser', async (req, res) => {
     }
 })
 
+Router.post('/CreateUser' , async(req , res) => {
+    try
+    {
+        const { FormData } = req.body;
+        const FindUser = await Users.findOne({PhoneNumber : FormData.PhoneNumber})
+        if(FindUser)
+        {
+            res.json({Message : "User already existed" })
+        }
+        else
+        {
+            const set = {
+                  UserName: FormData.UserName,
+                  Password: FormData.Password,
+                  PhoneNumber: FormData.PhoneNumber,
+                };
+                const dataset = new Users(set);
+                const datasave = await dataset.save();
+                const UsersData = await Users.find();
+            res.json({Message : "User Created" , Users : UsersData})
+        }
+    }
+    catch(error)
+    {
+        res.json({error : error})
+    }
+    
+})
+
+Router.delete('/DeleteUser' , async(req , res) => {
+    const {Userid} = req.query;
+    const Deleteuser = await Users.deleteOne({_id : Userid})
+    const UsersData = await Users.find();
+    res.json({Message : "User Deleted" , Users : UsersData})
+})
+
 
 module.exports = Router
