@@ -35,6 +35,8 @@ router.get('/User', async (req, res) => {
 
 })
 
+
+
 router.post("/Product", async (req, res) => {
   const Id = req.body.id;
   console.log(Id + " is the id");
