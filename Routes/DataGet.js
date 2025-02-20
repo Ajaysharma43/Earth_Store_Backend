@@ -18,30 +18,30 @@ router.get("/data", async (req, res) => {
   res.json({ Data, currentPage, totalpages });
 });
 
-router.get('/AllData' , async(req , res) => {
+router.get('/AllData', async (req, res) => {
   const Data = await data.find()
-  res.json({ Data : Data })
+  res.json({ Data: Data })
 })
 
-router.get('/AllUsers' , async(req , res) => {
+router.get('/AllUsers', async (req, res) => {
   const UsersData = await Users.find();
-  res.json({Users : UsersData})
+  res.json({ Users: UsersData })
 })
 
-router.get('/User' , async(req , res) => {
-  const {UserID}  = req.query;
-  const FindUser = await Users.findOne({_id : UserID})
-  res.json({User : FindUser})
-  
+router.get('/User', async (req, res) => {
+  const { UserID } = req.query;
+  const FindUser = await Users.findOne({ _id: UserID })
+  res.json({ User: FindUser })
+
 })
 
 router.post("/Product", async (req, res) => {
   const Id = req.body.id;
   console.log(Id + " is the id");
-  
+
   const Product = await data.findOne({ _id: Id });
-  
-  res.json({ Product:Product });
+
+  res.json({ Product: Product });
 });
 
 router.post("/RelatedProduct", async (req, res) => {
@@ -56,7 +56,7 @@ router.post("/RelatedProduct", async (req, res) => {
 
 router.post("/Review", async (req, res) => {
   try {
-    const { Reviews, id, Userid  } = req.body;
+    const { Reviews, id, Userid } = req.body;
 
     const Data = await data.findOne({ _id: Reviews.id });
     const User = Data.Reviews.find(

@@ -4,7 +4,7 @@ const VerifyUser = (req , res , next) => {
     try
     {
         const Role = req.headers.authorization.split(' ')[1];
-        const AllowedRoles = ["Admin"];
+        const AllowedRoles = ["Admin","Editor"];
         if(AllowedRoles.includes(Role))
         {
             res.json({Success  : true})

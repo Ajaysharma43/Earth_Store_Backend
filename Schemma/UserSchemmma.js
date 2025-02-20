@@ -8,8 +8,8 @@ const UsersSchemma = new mongoose.Schema({
   UserName: { type: String },
   Password: { type: String },
   PhoneNumber: { type: String },
-  Role : {type : String , enum : ["Admin" , "User"] , default : "User"},
-  Block : {type : Boolean , default : false},
+  Role: { type: String, enum: ["Admin", "User", "Editor"], default: "User" },
+  Block: { type: Boolean, default: false },
   CartProducts: [
     {
       ProductID: { type: String },
@@ -24,7 +24,7 @@ const UsersSchemma = new mongoose.Schema({
   StripeID: { type: String },
   Checkout: [
     {
-      Product : [{
+      Product: [{
         ProductID: { type: String },
         Name: { type: String },
         Type: { type: String },
@@ -32,23 +32,23 @@ const UsersSchemma = new mongoose.Schema({
         Image: { type: String },
         Description: { type: String },
         Quantity: { type: Number },
-        PlacedAt: { type: String, default: getISTDate }, 
+        PlacedAt: { type: String, default: getISTDate },
       }],
-      Address : {
-        Pincode : {type : String},
-        Street : {type : String},
-        Area : {type : String},
-        City : {type : String},
-        State : {type : String},
-        Country : {type : String},
+      Address: {
+        Pincode: { type: String },
+        Street: { type: String },
+        Area: { type: String },
+        City: { type: String },
+        State: { type: String },
+        Country: { type: String },
         PaymentMethod: { type: String },
       },
-      ChargeID : {type : String},
+      ChargeID: { type: String },
     },
   ],
   OrderHistory: [
     {
-      Product : [{
+      Product: [{
         ProductID: { type: String },
         Name: { type: String },
         Type: { type: String },
@@ -56,21 +56,21 @@ const UsersSchemma = new mongoose.Schema({
         Image: { type: String },
         Description: { type: String },
         Quantity: { type: Number },
-        PlacedAt: { type: String, default: getISTDate }, 
+        PlacedAt: { type: String, default: getISTDate },
       }],
-      Address : {
-        Pincode : {type : String},
-        Street : {type : String},
-        Area : {type : String},
-        City : {type : String},
-        State : {type : String},
-        Country : {type : String},
+      Address: {
+        Pincode: { type: String },
+        Street: { type: String },
+        Area: { type: String },
+        City: { type: String },
+        State: { type: String },
+        Country: { type: String },
         PaymentMethod: { type: String },
       },
-      ChargeID : {type : String},
-      OrderID : {type : String},
-      Canceled : {type : Boolean , default : false},
-      Reason : {type  : String},
+      ChargeID: { type: String },
+      OrderID: { type: String },
+      Canceled: { type: Boolean, default: false },
+      Reason: { type: String },
     },
   ],
 });
