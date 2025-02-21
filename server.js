@@ -15,7 +15,27 @@ const app = express();
 
 dbconnection();
 
-app.use(cors());
+// Allow localhost (for development) and your live domain
+const allowedOrigins = [
+    `${process.env.LOCAL_SERVER}`, // Localhost for development
+    `${process.env.LIVE_SERVER}`, // Add live server URL
+];
+
+// CORS Options
+const corsOptions = {
+    origin: function (origin, callback) {
+      // Allow requests with no origin (like mobile apps or Postman)
+      if (!origin) return callback(null, true);
+  
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true); // Allow the origin
+      } else {
+        callback(new Error('Not allowed by CORS')); // Reject the origin
+      }
+    },
+  };
+
+app.use(cors(corsOptions));
 
 
 app.use(express.json());
