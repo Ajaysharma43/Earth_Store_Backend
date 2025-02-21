@@ -13,11 +13,13 @@ Router.post('/BlockUser', async (req, res) => {
         else {
             FindUser.Block = true
         }
+        await FindUser.save()
+        res.json({ FindUser: FindUser })
     }
     catch (error) {
-        res.json({ error: error });
+        res.json({ error: error })
     }
-});
+})
 
 Router.put('/UpdateUser', async (req, res) => {
     try {
